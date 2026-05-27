@@ -1,546 +1,416 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compound Interest Graphs</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
+    <title>NY State Tax Visualization: Full Breakdown</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 20px;
-        min-height: 100vh;
-      }
-
-      .container {
-        max-width: 1400px;
-        margin: 0 auto;
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .header {
-        padding: 35px 30px;
-        background: linear-gradient(135deg, #2c3e50 0%, #4a5568 100%);
-        color: white;
-        text-align: center;
-      }
-
-      h1 {
-        font-size: 2.2rem;
-        margin-bottom: 8px;
-        letter-spacing: -0.5px;
-      }
-
-      .subtitle {
-        opacity: 0.9;
-        font-size: 1rem;
-      }
-
-      .controls {
-        padding: 25px;
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        flex-wrap: wrap;
-        background: #f7fafc;
-        border-bottom: 1px solid #e2e8f0;
-      }
-
-      .input-group {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        min-width: 160px;
-      }
-
-      label {
-        font-size: 13px;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 6px;
-        font-weight: 600;
-      }
-
-      input {
-        width: 190px;
-        padding: 12px 16px;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        font-size: 15px;
-        transition: all 0.3s ease;
-        outline: none;
-      }
-
-      input:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-      }
-
-      button {
-        padding: 12px 32px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: 15px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: auto;
-      }
-
-      button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-      }
-
-      /* Tab Navigation Styling */
-      .tabs {
-        display: flex;
-        border-bottom: 2px solid #e2e8f0;
-        margin: 0 25px 20px 25px;
-      }
-
-      .tab-button {
-        padding: 15px 25px;
-        cursor: pointer;
-        border: none;
-        background: none;
-        font-size: 16px;
-        font-weight: 600;
-        color: #718096;
-        border-bottom: 3px solid transparent;
-        transition: all 0.3s ease;
-      }
-
-      .tab-button.active {
-        color: #667eea;
-        border-bottom-color: #667eea;
-      }
-
-      /* Tab Content Styling */
-      .tab-content {
-        padding: 0 25px;
-        display: none;
-      }
-
-      .tab-content.active {
-        display: block;
-      }
-
-      .graphs-row {
-        display: flex;
-        gap: 25px;
-        padding: 30px 25px;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-
-      .graph-card {
-        width: 100%;
-        max-width: 680px;
-        background: white;
-        border-radius: 12px;
-        padding: 25px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      }
-
-      .graph-card h3 {
-        text-align: center;
-        margin-bottom: 20px;
-        color: #2d3748;
-        font-size: 1rem;
-        padding: 0 15px;
-        border-bottom: 2px solid #f0f0f0;
-      }
-
-      canvas {
-        width: 100%;
-        max-height: 500px !important;
-      }
-
-      /* Footer Styling */
-      .footer {
-        padding: 20px 30px;
-        text-align: center;
-        font-size: 14px;
-        color: #718096;
-        border-top: 1px solid #e2e8f0;
-        background: #fafafa;
-      }
-
-      @media (max-width: 768px) {
         body {
-          padding: 10px;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            margin: 20px;
         }
-
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
         h1 {
-          font-size: 1.7rem;
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 10px;
         }
-
-        input,
-        button {
-          width: 100%;
-          margin-top: auto;
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
         }
-
+        /* Input and Controls Section */
         .controls {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 15px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            background-color: #e9f4ff;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            height: 10px;
+            -webkit-appearance: none;
+            background: #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="range"]:focus {
+            outline: none;
+        }
+        .income-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #0056b3;
+            margin-top: 10px;
+            text-align: center;
+        }
+        /* Visualization Section */
+        .visualization {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px dashed #007bff;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .tax-bar-container {
+            height: 40px;
+            background-color: #eee;
+            border-radius: 20px;
+            margin: 20px auto;
+            width: 80%;
+            overflow: hidden;
+            position: relative;
+        }
+        #taxBar {
+            height: 100%;
+            width: 0%;
+            background-color: #dc3545; 
+            transition: width 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .results {
+            margin-top: 20px;
+            font-size: 1.2em;
         }
 
-        .tabs {
-          flex-direction: column;
-          align-items: stretch;
+        /* --- BRACKET VISUALIZATION STYLES --- */
+        .bracket-visualizer {
+            margin-top: 40px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .bracket-container {
+            display: flex;
+            height: 40px;
+            width: 100%;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .bracket-segment {
+            height: 100%;
+            transition: width 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+        .bracket-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            margin-top: 5px;
         }
 
-        .tab-button {
-          width: 100%;
-          text-align: center;
+        /* --- DETAILED BREAKDOWN TABLE --- */
+        .detailed-breakdown {
+            margin-top: 40px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
         }
-      }
+        .detailed-breakdown h3 {
+            text-align: center;
+            color: #0056b3;
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background-color: #0056b3;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
     </style>
-  </head>
-  <body id="app-body">
+</head>
+<body >
+
     <div class="container">
-      <div class="header">
-        <h1>Compound Interest Comparison Tool</h1>
-        <p class="subtitle">Visualize how money grows</p>
-      </div>
-      <div class="controls">
-        <div class="input-group">
-          <label for="principal">Initial Deposit ($)</label>
-          <input type="number" id="principal" value="12000">
+        <h1 class="text-center">NY State Tax Visualization</h1>
+        <p class="subtitle">Understanding Progressive Taxation via Piecewise Functions</p>
+
+        <!-- 1. Controls Section -->
+        <div class="controls">
+            <label for="incomeSlider">Your Estimated Annual Income: $<span id="incomeValue">50000</span></label>
+            <!-- Increased step to reduce visual 'jumping' effect -->
+            <input type="range" id="incomeSlider" min="20000" max="350000" value="50000" step="10000"> 
         </div>
-        <div class="input-group">
-          <label for="rate">Annual Rate (%)</label>
-          <input type="number" id="rate" value="4.4">
+
+        <!-- 2. Visualization Section -->
+        <div class="visualization">
+            <h2 class="text-center">Total Tax Burden Summary</h2>
+            
+            <div class="results">
+                <p>Estimated State Tax Owed: <strong id="taxAmount">$0.00</strong></p>
+                <p>Effective Tax Rate: <strong id="effectiveRate">0.00%</strong></p>
+            </div>
+
+            <div class="tax-bar-container">
+                <div id="taxBar">0%</div>
+            </div>
+            <small>The bar shows the proportion of your income that goes towards estimated state taxes.</small>
         </div>
-        <div class="input-group">
-          <label for="years">Years</label>
-          <input type="number" id="years" value="25">
+
+        <!-- 3. NEW BRACKET VISUALIZATION -->
+        <div class="bracket-visualizer">
+            <h3 style="text-align: center;">Income Bracket Breakdown (Piecewise Domains)</h3>
+            <div id="bracketContainer" class="bracket-container"></div>
+            <div class="bracket-label" id="bracketLabels"></div>
         </div>
-        <button onclick="updateGraphs()">Update Graphs</button>
-      </div>
-      <!-- TAB NAVIGATION (SWAPPED) -->
-      <div class="tabs" id="tabNavigation">
-        <button class="tab-button active" data-tab="chart2">Graph 1: Standard Compound Interest (Green)</button>
-        <button class="tab-button" data-tab="chart1">Graph 2: Linear vs. Compounded-Linear (Shaded)</button>
-      </div>
-      <!-- TAB CONTENT AREA -->
-      <!-- GRAPH 1 CONTENT (STANDARD COMPOUND) -->
-      <div class="tab-content active" id="content-chart2">
-        <div class="graphs-row">
-          <div class="graph-card">
-            <h3 id="title2"></h3>
-            <canvas id="chart2"></canvas>
-          </div>
+
+        <!-- 4. NEW DETAILED BREAKDOWN TABLE -->
+        <div class="detailed-breakdown">
+            <h3 style="text-align: center;">Tax Contribution by Bracket</h3>
+            <table id="taxTable">
+                <thead>
+                    <tr style="background-color: #0056b3;">
+                        <th>Bracket Range</th>
+                        <th>Marginal Rate</th>
+                        <th>Income in Bracket</th>
+                        <th>Tax Paid in Bracket</th>
+                    </tr>
+                </thead>
+                <tbody id="taxTableBody">
+                    <!-- Rows will be injected here -->
+                </tbody>
+            </table>
         </div>
-      </div>
-      <!-- GRAPH 2 CONTENT (LINEAR VS COMPOUNDED-LINEAR) -->
-      <div class="tab-content" id="content-chart1">
-        <div class="graphs-row">
-          <div class="graph-card">
-            <h3 id="title1"></h3>
-            <canvas id="chart1"></canvas>
-          </div>
+
+
+        <!-- 5. Mathematical Explanation -->
+        <div class="math-explanation">
+            <h3 style="text-align: center;">🧠 Mathematical Concept: Progressive Piecewise Functions</h3>
+            <p>The system is piecewise because the rate changes at specific income thresholds (the limits). Each bracket is a distinct 'piece' of the function The table shows how your income is partitioned across these domains.</p>
+   
         </div>
-      </div>
-      <!-- FOOTER -->
-      <div class="footer"> By: Erick, Adrien, and Zihan </div>
+
     </div>
+
     <script>
-      // ============================================
-      // MATH FUNCTIONS
-      // ============================================
-      const PRINCIPAL_DEFAULT = 12000;
-      const RATE_DEFAULT = 4.4 / 100;
-      const MAX_YEARS = 30;
+        // --- SIMPLIFIED NY STATE BRACKET DEFINITION (EDUCATIONAL APPROXIMATION) ---
+        const NY_BRACKETS = [
+            { limit: 10000, rate: 0.04, color: '#5cb85c' }, 
+            { limit: 50000, rate: 0.059, color: '#5bc0de' }, 
+            { limit: 150000, rate: 0.0965, color: '#f0ad4e' }, 
+            { limit: 350000, rate: 0.109, color: '#d9534f' }, 
+            { limit: Infinity, rate: 0.12, color: '#a94442' }
+        ];
 
-      function calcLinear(x, p) {
-        return p * x;
-      }
+        // --- DOM ELEMENTS ---
+        const incomeSlider = document.getElementById('incomeSlider');
+        const incomeValueDisplay = document.getElementById('incomeValue');
+        const taxAmountDisplay = document.getElementById('taxAmount');
+        const effectiveRateDisplay = document.getElementById('effectiveRate');
+        const taxBar = document.getElementById('taxBar');
+        const bracketContainer = document.getElementById('bracketContainer');
+        const bracketLabels = document.getElementById('bracketLabels');
+        const taxTableBody = document.getElementById('taxTableBody');
 
-      function calcCompoundedLinear(x, p, r) {
-        return p * x * Math.pow(1 + r, x);
-      }
 
-      function calcStandardCompound(x, p, r) {
-        return p * Math.pow(1 + r, x);
-      }
-      // ============================================
-      // HELPER FUNCTIONS WITH ERROR HANDLING
-      // ============================================
-      function safeGetNumber(id, defaultValue) {
-        const el = document.getElementById(id);
-        if (!el) return defaultValue;
-        try {
-          let val = parseFloat(el.value || '0');
-          if (id === 'principal') {
-            val = isFinite(val) && val >= 0 ? val : defaultValue;
-          } else if (id === 'rate') {
-            val = isFinite(val) && val >= 0 ? Math.min(Math.max(val, 0), 100) / 100 : RATE_DEFAULT;
-          } else if (id === 'years') {
-            val = isFinite(val) && val >= 0 ? Math.min(Math.max(val, 1), MAX_YEARS) : MAX_YEARS;
-          }
-          return isNaN(val) || !isFinite(val) ? defaultValue : val;
-        } catch (error) {
-          console.error(`Error parsing ${id}:`, error);
-          return defaultValue;
-        }
-      }
+        /**
+         * Calculates the total tax and returns a detailed breakdown array.
+         */
+        function calculateProgressiveTax(income) {
+            let totalTax = 0;
+            const breakdown = [];
 
-      function getPrincipal() {
-        return safeGetNumber('principal', PRINCIPAL_DEFAULT);
-      }
-
-      function getRate() {
-        return safeGetNumber('rate', RATE_DEFAULT);
-      }
-
-      function getYears() {
-        return safeGetNumber('years', MAX_YEARS);
-      }
-      // ============================================
-      // CHART 1 - LINEAR VS COMPOUNDED-LINEAR SETUP (FULLY FIXED)
-      // ============================================
-      const ctx1 = document.getElementById('chart1');
-      let chart1Instance;
-
-      function setupChart1(years, linearData, compoundedLinearData) {
-        if (chart1Instance) {
-          chart1Instance.destroy();
-        } else if (!ctx1) {
-          console.error("Chart 1 Canvas element not found.");
-          return null;
-        }
-        const newChart = new Chart(ctx1.getContext('2d'), {
-          type: 'line',
-          data: {
-            labels: years,
-            datasets: [{
-              label: 'Linear Growth f(x)',
-              borderColor: '#4f46e5', // Indigo/Purple
-              backgroundColor: 'rgba(79, 70, 229, 0.1)',
-              borderWidth: 3,
-              pointRadius: 5,
-              hoverRadius: 7,
-              tension: 0.4,
-              data: linearData,
-              fill: true // SHADED BASE
-            }, {
-              label: 'Compounded-Linear g(x)',
-              borderColor: '#ef4444',
-              backgroundColor: 'rgba(239, 68, 68, 0.1)',
-              borderWidth: 3,
-              pointRadius: 5,
-              hoverRadius: 7,
-              tension: 0.4,
-              data: compoundedLinearData,
-              fill: true // SHADED TOP (Fills area between g(x) and f(x))
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: false,
-            scales: {
-              x: {
-                title: 'Years',
-                grid: {
-                  display: false
+            for (let i = 0; i < NY_BRACKETS.length; i++) {
+                const bracket = NY_BRACKETS[i];
+                
+                const bracketStart = i === 0 ? 0 : NY_BRACKETS[i-1].limit;
+                let bracketEnd = bracket.limit;
+                
+                // If this is the final bracket, set the upper limit to the current income
+                if (bracket.limit === Infinity) {
+                    bracketEnd = income; 
                 }
-              },
-              y: {
-                beginAtZero: false,
-                ticks: {
-                  callback: v => '$' + Math.round(v)
+
+                // Ensure we don't process brackets that start above the income
+                if (bracketStart >= income) {
+                    break;
                 }
-              }
-            },
-            plugins: {
-              legend: {
-                position: 'top',
-                labels: {
-                  padding: 15
-                }
-              },
-              tooltip: {
-                intersect: false,
-                mode: 'index',
-                callbacks: {
-                  label: (ctx) => {
-                    const x = Math.round(ctx.parsed.x);
-                    const p = getPrincipal();
-                    const r = getRate();
-                    return ctx.datasetIndex === 0 ? `f(${x}) = $${calcLinear(x, p).toLocaleString()}` : `g(${x}) = $${calcCompoundedLinear(x, p, r).toLocaleString()}`;
-                  },
-                  afterLabel: (ctx) => {
-                    const x = Math.round(ctx.parsed.x);
-                    const p = getPrincipal();
-                    const r = getRate();
-                    if (ctx.datasetIndex === 0) {
-                      const totalValue = calcLinear(x, p);
-                      const interestEarned = totalValue - p;
-                      return `Initial Deposit: $${p.toLocaleString()}\nAmount Earned: $${interestEarned.toLocaleString()}\nTotal Value: $${totalValue.toLocaleString()}`;
-                    } else {
-                      const finalValue = calcCompoundedLinear(x, p, r);
-                      const interestEarned = finalValue - p;
-                      return `Initial Deposit: $${p.toLocaleString()}\nAmount Earned: $${interestEarned.toLocaleString()}\nTotal Value: $${finalValue.toLocaleString()}`;
-                    }
-                  }
-                }
-              }
+
+                // Determine the actual amount of income that falls into this bracket slice
+                const taxableInThisSlice = Math.min(income, bracketEnd) - bracketStart;
+                
+                // Calculate tax for this slice
+                const taxForThisSlice = taxableInThisSlice * bracket.rate;
+                totalTax += taxForThisSlice;
+                
+                // Record the result for the table
+                breakdown.push({
+                    range: `${bracketStart.toLocaleString()} - ${bracketEnd === Infinity ? '∞' : bracketEnd.toLocaleString()}`,
+                    rate: (bracket.rate * 100).toFixed(2) + '%',
+                    incomeInBracket: taxableInThisSlice.toFixed(2),
+                    taxPaid: taxForThisSlice.toFixed(2),
+                    color: bracket.color
+                });
             }
-          }
-        });
-        return newChart;
-      }
-      // ============================================
-      // CHART 2 - STANDARD COMPOUND INTEREST SETUP (FULLY FIXED)
-      // ============================================
-      const ctx2 = document.getElementById('chart2');
-      let chart2Instance;
 
-      function setupChart2(years, standardCompoundData) {
-        if (chart2Instance) {
-          chart2Instance.destroy();
-        } else if (!ctx2) {
-          console.error("Chart 2 Canvas element not found.");
-          return null;
+            const effectiveRate = income > 0 ? (totalTax / income) * 100 : 0;
+            return { totalTax: totalTax, effectiveRate: effectiveRate, breakdown: breakdown };
         }
-        const newChart = new Chart(ctx2.getContext('2d'), {
-          type: 'line',
-          data: {
-            labels: years,
-            datasets: [{
-              label: 'Standard Compound Interest h(x)',
-              borderColor: '#10b981',
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
-              borderWidth: 3,
-              pointRadius: 5,
-              hoverRadius: 7,
-              tension: 0.4,
-              data: standardCompoundData
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: false,
-            scales: {
-              x: {
-                title: 'Years',
-                grid: {
-                  display: false
+
+        /**
+         * Renders the visual representation of the tax brackets based on the current income.
+         */
+        function renderBracketVisuals(income) {
+            bracketContainer.innerHTML = '';
+            bracketLabels.innerHTML = '';
+            
+            const VISUAL_SCALE_MAX = 350000; 
+            
+            for (let i = 0; i < NY_BRACKETS.length; i++) {
+                const bracket = NY_BRACKETS[i];
+                const bracketStart = i === 0 ? 0 : NY_BRACKETS[i-1].limit;
+                let bracketEnd = bracket.limit;
+                
+                if (bracket.limit === Infinity) {
+                    bracketEnd = income; 
                 }
-              },
-              y: {
-                beginAtZero: false,
-                ticks: {
-                  callback: v => '$' + Math.round(v)
+
+                const bracketRange = bracketEnd - bracketStart;
+                const visualWidth = (bracketRange / VISUAL_SCALE_MAX) * 100;
+                
+                // Calculate how much of this bracket is filled by the user's income
+                let filledWidth = 0;
+                if (income > bracketStart) {
+                     filledWidth = Math.min(bracketRange, income - bracketStart);
                 }
-              }
-            },
-            plugins: {
-              legend: {
-                position: 'top',
-                labels: {
-                  padding: 15
+                const filledPercentage = (filledWidth / VISUAL_SCALE_MAX) * 100;
+
+
+                // --- Create Segment Bar ---
+                const segment = document.createElement('div');
+                segment.className = 'bracket-segment';
+                segment.style.backgroundColor = bracket.color;
+                segment.style.width = `${visualWidth}%`;
+                
+                // Use a gradient to show where the income stops within the bracket
+                segment.style.backgroundImage = `linear-gradient(to right, ${bracket.color} 0%, ${bracket.color} ${filledPercentage}%, #ccc ${filledPercentage}%)`;
+                
+                if (visualWidth > 10) {
+                     segment.textContent = `${(bracket.rate * 100).toFixed(1)}%`;
                 }
-              },
-              tooltip: {
-                intersect: false,
-                mode: 'index',
-                callbacks: {
-                  label: (ctx) => `h(${Math.round(ctx.parsed.x)}) = $${calcStandardCompound(Math.round(ctx.parsed.x), getPrincipal(), getRate()).toLocaleString()}`,
-                  afterLabel: (ctx) => {
-                    const x = Math.round(ctx.parsed.x);
-                    const p = getPrincipal();
-                    const r = getRate();
-                    const finalValue = calcStandardCompound(x, p, r);
-                    const interestEarned = finalValue - p;
-                    return `Initial Deposit: $${p.toLocaleString()}\nAmount Earned: $${interestEarned.toLocaleString()}\nTotal Value: $${finalValue.toLocaleString()}`;
-                  }
-                }
-              }
+                bracketContainer.appendChild(segment);
+
+                // --- Create Label ---
+                const label = document.createElement('div');
+                label.style.flex = '1';
+                label.style.textAlign = 'center';
+                
+                const startDisplay = bracketStart.toLocaleString('en-US');
+                const endDisplay = bracketEnd === Infinity ? '∞' : bracketEnd.toLocaleString('en-US');
+
+                label.innerHTML = `<strong style="color:${bracket.color};">$${startDisplay}</strong> to $${endDisplay}`;
+                bracketLabels.appendChild(label);
             }
-          }
-        });
-        return newChart;
-      }
-      // ============================================
-      // MAIN UPDATE FUNCTION (CORE LOGIC)
-      // ============================================
-      function updateGraphs() {
-        try {
-          const p = getPrincipal();
-          const r = getRate();
-          const y = getYears();
-          if (p <= 0 || isNaN(p)) throw new Error('Invalid principal value');
-          if (r < 0 || isNaN(r)) throw new Error('Invalid rate value');
-          if (y < 1 || isNaN(y)) throw new Error('Invalid years value');
-          // 1. Generate data points
-          const years = [];
-          const linearData = [];
-          const compoundedLinearData = [];
-          const standardCompoundData = [];
-          for (let x = 0; x <= y; x++) {
-            const valLinear = calcLinear(x, p);
-            const valCompounded = calcCompoundedLinear(x, p, r);
-            const valStandard = calcStandardCompound(x, p, r);
-            if (!isFinite(valLinear) || !isFinite(valCompounded) || !isFinite(valStandard)) {
-              throw new Error(`Infinite value calculated at year ${x}. Check input values.`);
-            }
-            years.push(x);
-            linearData.push(valLinear);
-            compoundedLinearData.push(valCompounded);
-            standardCompoundData.push(valStandard);
-          }
-          // 2. Initialize/Update Chart 1 (Destroys old one, then creates new one)
-          chart1Instance = setupChart1(years, linearData, compoundedLinearData);
-          // 3. Initialize/Update Chart 2 (Destroys old one, then creates new one)
-          chart2Instance = setupChart2(years, standardCompoundData);
-        } catch (error) {
-          console.error('Fatal Error in updateGraphs:', error);
         }
-      }
-      // ============================================
-      // TAB FUNCTIONALITY
-      // ============================================
-      document.addEventListener('DOMContentLoaded', () => {
-        // --- TAB LOGIC ---
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabContents = document.querySelectorAll('.tab-content');
-        tabButtons.forEach(button => {
-          button.addEventListener('click', () => {
-            // 1. Deactivate all buttons and hide all content
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
-            // 2. Activate the clicked button and show the corresponding content
-            button.classList.add('active');
-            document.getElementById(`content-${button.dataset.tab}`).classList.add('active');
-            // *** CRITICAL FIX: FORCE A REFRESH WHEN SWITCHING TABS ***
-            updateGraphs();
-          });
-        });
-        // --- INITIALIZATION ---
-        updateGraphs();
-      });
+
+        function renderTaxTable(breakdown) {
+            const tableBody = document.getElementById('taxTableBody');
+            tableBody.innerHTML = '';
+
+            breakdown.forEach(item => {
+                const row = tableBody.insertRow();
+                
+                // Range
+                row.insertCell().textContent = item.range;
+                
+                // Rate
+                const rateCell = row.insertCell();
+                rateCell.textContent = item.rate;
+                rateCell.style.color = item.color;
+                rateCell.style.fontWeight = 'bold';
+
+                // Income in Bracket
+                row.insertCell().textContent = `$${item.incomeInBracket}`;
+                
+                // Tax Paid
+                row.insertCell().textContent = `$${item.taxPaid}`;
+            });
+        }
+
+
+        function updateVisualization() {
+            const income = parseFloat(incomeSlider.value);
+            
+            // 1. Calculate Results
+            const { totalTax, effectiveRate, breakdown } = calculateProgressiveTax(income);
+
+            // 2. Update Summary Text Displays
+            incomeValueDisplay.textContent = income.toLocaleString('en-US');
+            taxAmountDisplay.textContent = `$${totalTax.toFixed(2).toLocaleString('en-US')}`;
+            effectiveRateDisplay.textContent = `${effectiveRate.toFixed(2)}%`;
+
+            // 3. Update Main Tax Bar
+            const taxPercentage = (totalTax / income) * 100; 
+            taxBar.style.width = `${taxPercentage.toFixed(1)}%`;
+            taxBar.textContent = `${taxPercentage.toFixed(1)}%`;
+            
+            // Dynamic coloring
+            if (taxPercentage > 15) {
+                 taxBar.style.backgroundColor = '#d9534f'; 
+            } else if (taxPercentage > 7) {
+                taxBar.style.backgroundColor = '#f0ad4e'; 
+            } else {
+                taxBar.style.backgroundColor = '#5cb85c'; 
+            }
+
+            // 4. Update Bracket Visuals (Segmented Bar)
+            renderBracketVisuals(income);
+
+            // 5. Update Detailed Table
+            renderTaxTable(breakdown);
+        }
+
+        // Initialize and hook up listener
+        incomeSlider.addEventListener('input', updateVisualization);
+        
+        // Run once on load to set initial values
+        updateVisualization();
     </script>
-  </body>
-</html> ```<|im_end|>
+
+</body >
+</html>
