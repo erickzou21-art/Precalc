@@ -3,414 +3,592 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NY State Tax Visualization: Full Breakdown</title>
+    <title>Multi-Layered Tax Visualization – NYC 2024</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f7f9;
-            color: #333;
-            margin: 20px;
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap');
+
+        :root {
+            --blue:   #0056b3;
+            --green:  #28a745;
+            --red:    #dc3545;
+            --orange: #e67e22;
+            --purple: #6f42c1;
+            --dark:   #1a1a2e;
+            --light-bg: #f4f7f9;
         }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: var(--light-bg);
+            color: #333;
+            margin: 0;
+        }
+
         .container {
-            max-width: 900px;
-            margin: 0 auto;
+            max-width: 960px;
+            margin: 20px auto;
             background: #fff;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
-        h1 {
-            color: #0056b3;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-        }
-        /* Input and Controls Section */
+
+        h1 { color: var(--blue); text-align: center; margin-bottom: 6px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 28px; }
+
+        /* CONTROLS */
         .controls {
             padding: 20px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
             background-color: #e9f4ff;
         }
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-        input[type="range"] {
-            width: 100%;
-            height: 10px;
-            -webkit-appearance: none;
-            background: #007bff;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        input[type="range"]:focus {
-            outline: none;
+        label { display: block; margin-bottom: 6px; font-weight: 600; }
+        input[type="range"] { width: 100%; margin-bottom: 16px; accent-color: var(--blue); }
+        select {
+            width: 100%; padding: 8px; margin-bottom: 6px;
+            border-radius: 5px; border: 1px solid #ccc; font-size: 1em;
         }
         .income-display {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #0056b3;
-            margin-top: 10px;
-            text-align: center;
+            font-size: 1.5em; font-weight: 700;
+            color: var(--blue); text-align: center; margin-top: 6px;
         }
-        /* Visualization Section */
+
+        /* TABS */
+        .tabs {
+            display: flex; border-bottom: 2px solid #ddd;
+            margin-bottom: 20px; overflow-x: auto;
+        }
+        .tab-button {
+            padding: 12px 20px; cursor: pointer;
+            border: none; background-color: #e9ecef;
+            border-right: 1px solid #ddd;
+            font-weight: 600; font-family: inherit;
+            transition: background-color 0.2s;
+        }
+        .tab-button:hover { background-color: #dee2e6; }
+        .tab-button.active { background-color: var(--blue); color: white; }
+        .tab-content { display: none; padding: 10px 0; }
+        .tab-content.active { display: block; }
+
+        /* SUMMARY */
         .visualization {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 2px dashed #007bff;
-            border-radius: 10px;
-            text-align: center;
+            padding: 20px; border: 2px dashed #007bff;
+            border-radius: 10px; text-align: center; margin-bottom: 28px;
         }
+        .results { margin: 14px 0; font-size: 1.1em; }
+        .results p { margin: 6px 0; }
+
         .tax-bar-container {
-            height: 40px;
-            background-color: #eee;
-            border-radius: 20px;
-            margin: 20px auto;
-            width: 80%;
-            overflow: hidden;
-            position: relative;
+            height: 40px; background-color: #eee;
+            border-radius: 20px; margin: 16px auto;
+            width: 85%; overflow: hidden;
         }
         #taxBar {
-            height: 100%;
-            width: 0%;
-            background-color: #dc3545; 
-            transition: width 0.3s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
-            color: white;
-            font-weight: bold;
-            font-size: 0.9em;
-        }
-        .results {
-            margin-top: 20px;
-            font-size: 1.2em;
+            height: 100%; width: 0%;
+            background-color: var(--green);
+            transition: width 0.4s ease, background-color 0.4s ease;
+            display: flex; align-items: center;
+            justify-content: flex-end; padding-right: 12px;
+            color: white; font-weight: 700; font-size: 0.9em;
+            min-width: 40px;
         }
 
-        /* --- BRACKET VISUALIZATION STYLES --- */
-        .bracket-visualizer {
-            margin-top: 40px;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            background-color: #f9f9f9;
+        /* CARDS */
+        .summary-cards {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px; margin: 24px 0;
         }
+        .card { padding: 16px 14px; border-radius: 10px; text-align: center; color: white; }
+        .card .card-label  { font-size: 0.8em; opacity: 0.9; margin-bottom: 4px; }
+        .card .card-value  { font-size: 1.4em; font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
+        .card .card-rate   { font-size: 0.85em; opacity: 0.85; margin-top: 2px; }
+        .card-federal { background: #3498db; }
+        .card-state   { background: #27ae60; }
+        .card-fica    { background: #2c3e50; }
+        .card-city    { background: var(--orange); }
+
+        /* BRACKET BAR */
+        .bracket-visualizer {
+            padding: 20px; border: 1px solid #ccc;
+            border-radius: 10px; background-color: #f9f9f9;
+        }
+        .bracket-visualizer h3 { text-align: center; color: var(--blue); margin-top: 0; }
         .bracket-container {
-            display: flex;
-            height: 40px;
-            width: 100%;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex; height: 40px; width: 100%;
+            border-radius: 6px; overflow: hidden;
+            margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .bracket-segment {
-            height: 100%;
-            transition: width 0.3s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.8em;
-            font-weight: bold;
-            overflow: hidden;
-            white-space: nowrap;
-            position: relative;
+            height: 100%; display: flex;
+            align-items: center; justify-content: center;
+            color: white; font-size: 0.75em; font-weight: 700;
+            overflow: hidden; white-space: nowrap;
+            transition: width 0.4s ease;
         }
-        .bracket-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9em;
-            margin-top: 5px;
+        .bracket-legend {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin-top: 12px; justify-content: center;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.8em; }
+        .legend-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+
+        /* TABLES */
+        .detailed-breakdown {
+            padding: 20px; border: 1px solid #ddd;
+            border-radius: 8px; background: #fff;
+        }
+        .detailed-breakdown h3 { text-align: center; color: var(--blue); margin-top: 0; }
+        .detailed-breakdown p { color: #555; font-size: 0.95em; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+        th, td { padding: 11px 14px; text-align: left; border-bottom: 1px solid #eee; }
+        th { color: white; }
+        tr:nth-child(even) { background-color: #f7f7f7; }
+        tfoot td { font-weight: 700; background-color: #f0f0f0; border-top: 2px solid #ccc; }
+
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .text-right { text-align: right; }
+
+        footer {
+            padding: 15px 0; margin-top: 30px;
+            text-align: center; font-size: 0.8em; color: #777;
         }
 
-        /* --- DETAILED BREAKDOWN TABLE --- */
-        .detailed-breakdown {
-            margin-top: 40px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #fff;
-        }
-        .detailed-breakdown h3 {
-            text-align: center;
-            color: #0056b3;
-            margin-top: 0;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        th {
-            background-color: #0056b3;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
+        .disclaimer {
+            font-size: 0.78em; color: #888; text-align: center;
+            margin-top: 10px; font-style: italic;
         }
     </style>
 </head>
-<body >
+<body>
+<div class="container">
+    <h1>Tax Modeling Tool (2024)</h1>
+    <p class="subtitle">Federal, New York State, FICA &amp; NYC City Taxes</p>
+    <p class="subtitle">2024 tax </p>
+    <div class="controls">
+        <label for="incomeSlider">Annual Income: <span id="incomeValue" class="font-mono">$50,000</span></label>
+        <input type="range" id="incomeSlider" min="20000" max="350000" value="50000" step="5000">
+        <label for="filingStatus">Filing Status:</label>
+        <select id="filingStatus">
+            <option value="single">Single</option>
+            <option value="married_joint">Married Filing Jointly</option>
+            <option value="married_separate">Married Filing Separately</option>
+            <option value="hoh">Head of Household</option>
+        </select>
+    </div>
 
-    <div class="container">
-        <h1 class="text-center">NY State Tax Visualization</h1>
-        <p class="subtitle">Understanding Progressive Taxation via Piecewise Functions</p>
+    <div class="tabs">
+        <button class="tab-button active" data-tab="summary">Summary</button>
+        <button class="tab-button" data-tab="federal">Federal</button>
+        <button class="tab-button" data-tab="state">NY State</button>
+        <button class="tab-button" data-tab="fica">FICA</button>
+        <button class="tab-button" data-tab="city">NYC City</button>
+    </div>
 
-        <!-- 1. Controls Section -->
-        <div class="controls">
-            <label for="incomeSlider">Your Estimated Annual Income: $<span id="incomeValue">50000</span></label>
-            <!-- Increased step to reduce visual 'jumping' effect -->
-            <input type="range" id="incomeSlider" min="20000" max="350000" value="50000" step="10000"> 
-        </div>
-
-        <!-- 2. Visualization Section -->
+    <!-- Summary Tab -->
+    <div id="summary" class="tab-content active">
         <div class="visualization">
-            <h2 class="text-center">Total Tax Burden Summary</h2>
-            
+            <h2 style="margin-top:0;">Total Amount</h2>
             <div class="results">
-                <p>Estimated State Tax Owed: <strong id="taxAmount">$0.00</strong></p>
-                <p>Effective Tax Rate: <strong id="effectiveRate">0.00%</strong></p>
+                <p>Total Estimated Tax: <strong id="taxAmount" class="font-mono">$0.00</strong></p>
+                <p>Overall Effective Rate: <strong id="effectiveRate" class="font-mono">0.00%</strong></p>
+                <p>Take-Home Pay: <strong id="takeHome" class="font-mono">$0.00</strong></p>
             </div>
-
             <div class="tax-bar-container">
                 <div id="taxBar">0%</div>
             </div>
-            <small>The bar shows the proportion of your income that goes towards estimated state taxes.</small>
+            <small>Bar shows the share of income going to each tax class.</small>
         </div>
 
-        <!-- 3. NEW BRACKET VISUALIZATION -->
+        <div class="summary-cards">
+            <div class="card card-federal">
+                <div class="card-label">Federal Tax</div>
+                <div class="card-value" id="cardFederal">$0</div>
+                <div class="card-rate" id="cardFederalRate">0.0% eff.</div>
+            </div>
+            <div class="card card-state">
+                <div class="card-label">NY State Tax</div>
+                <div class="card-value" id="cardState">$0</div>
+                <div class="card-rate" id="cardStateRate">0.0% eff.</div>
+            </div>
+            <div class="card card-fica">
+                <div class="card-label">FICA</div>
+                <div class="card-value" id="cardFica">$0</div>
+                <div class="card-rate" id="cardFicaRate">0.0% eff.</div>
+            </div>
+            <div class="card card-city">
+                <div class="card-label">NYC City Tax</div>
+                <div class="card-value" id="cardCity">$0</div>
+                <div class="card-rate" id="cardCityRate">0.0% eff.</div>
+            </div>
+        </div>
+
         <div class="bracket-visualizer">
-            <h3 style="text-align: center;">Income Bracket Breakdown (Piecewise Domains)</h3>
+            <h3>Federal Income Bracket Breakdown</h3>
             <div id="bracketContainer" class="bracket-container"></div>
-            <div class="bracket-label" id="bracketLabels"></div>
+            <div id="bracketLegend" class="bracket-legend"></div>
         </div>
-
-        <!-- 4. NEW DETAILED BREAKDOWN TABLE -->
-        <div class="detailed-breakdown">
-            <h3 style="text-align: center;">Tax Contribution by Bracket</h3>
-            <table id="taxTable">
-                <thead>
-                    <tr style="background-color: #0056b3;">
-                        <th>Bracket Range</th>
-                        <th>Marginal Rate</th>
-                        <th>Income in Bracket</th>
-                        <th>Tax Paid in Bracket</th>
-                    </tr>
-                </thead>
-                <tbody id="taxTableBody">
-                    <!-- Rows will be injected here -->
-                </tbody>
-            </table>
-        </div>
-
-
-        <!-- 5. Mathematical Explanation -->
-        <div class="math-explanation">
-            <h3 style="text-align: center;">🧠 Mathematical Concept: Progressive Piecewise Functions</h3>
-            <p>The system is piecewise because the rate changes at specific income thresholds (the limits). Each bracket is a distinct 'piece' of the function The table shows how your income is partitioned across these domains.</p>
-   
-        </div>
-
     </div>
 
-    <script>
-        // --- SIMPLIFIED NY STATE BRACKET DEFINITION (EDUCATIONAL APPROXIMATION) ---
-        const NY_BRACKETS = [
-            { limit: 10000, rate: 0.04, color: '#5cb85c' }, 
-            { limit: 50000, rate: 0.059, color: '#5bc0de' }, 
-            { limit: 150000, rate: 0.0965, color: '#f0ad4e' }, 
-            { limit: 350000, rate: 0.109, color: '#d9534f' }, 
-            { limit: Infinity, rate: 0.12, color: '#a94442' }
-        ];
+    <!-- Federal Tab -->
+    <div id="federal" class="tab-content">
+        <div class="detailed-breakdown">
+            <h3>Federal Tax Calculation (2024)</h3>
+            <p>Your income is taxed progressively across the seven Federal brackets. Rates apply to gross income before deductions in this conceptual model.</p>
+            <table>
+                <thead style="background:#3498db;">
+                    <tr><th>Bracket Range</th><th>Rate</th><th>Income in Bracket</th><th class="text-right">Tax Paid</th></tr>
+                </thead>
+                <tbody id="federalTableBody"></tbody>
+                <tfoot id="federalTableFoot"></tfoot>
+            </table>
+        </div>
+    </div>
 
-        // --- DOM ELEMENTS ---
-        const incomeSlider = document.getElementById('incomeSlider');
-        const incomeValueDisplay = document.getElementById('incomeValue');
-        const taxAmountDisplay = document.getElementById('taxAmount');
-        const effectiveRateDisplay = document.getElementById('effectiveRate');
-        const taxBar = document.getElementById('taxBar');
-        const bracketContainer = document.getElementById('bracketContainer');
-        const bracketLabels = document.getElementById('bracketLabels');
-        const taxTableBody = document.getElementById('taxTableBody');
+    <!-- State Tab -->
+    <div id="state" class="tab-content">
+        <div class="detailed-breakdown">
+            <h3>New York State Tax Calculation (2024)</h3>
+            <p>New York State uses a progressive income tax. Brackets differ by filing status.</p>
+            <table>
+                <thead style="background:#27ae60;">
+                    <tr><th>Bracket Range</th><th>Rate</th><th>Income in Bracket</th><th class="text-right">Tax Paid</th></tr>
+                </thead>
+                <tbody id="stateTableBody"></tbody>
+                <tfoot id="stateTableFoot"></tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- FICA Tab -->
+    <div id="fica" class="tab-content">
+        <div class="detailed-breakdown">
+            <h3>FICA Tax Calculation (2024)</h3>
+            <p>Social Security (6.2%) applies up to the wage base of $168,600. Medicare (1.45%) applies to all earned income.</p>
+            <table>
+                <thead style="background:#2c3e50;">
+                    <tr><th>Component</th><th>Rate</th><th>Income Subject</th><th class="text-right">Tax Paid</th></tr>
+                </thead>
+                <tbody id="ficaTableBody"></tbody>
+                <tfoot id="ficaTableFoot"></tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- City Tab -->
+    <div id="city" class="tab-content">
+        <div class="detailed-breakdown">
+            <h3>NYC City Tax Calculation (2024)</h3>
+            <p>The New York City resident income tax is progressive and varies by filing status. NYC has four brackets ranging from 3.078% to 3.876%.</p>
+            <table>
+                <thead style="background:#e67e22;">
+                    <tr><th>Bracket Range</th><th>Rate</th><th>Income in Bracket</th><th class="text-right">Tax Paid</th></tr>
+                </thead>
+                <tbody id="cityTableBody"></tbody>
+                <tfoot id="cityTableFoot"></tfoot>
+            </table>
+        </div>
+    </div>
+    <p class="disclaimer">By: Erick, Adrien, and Zihan</p>
+</div>
 
 
-        /**
-         * Calculates the total tax and returns a detailed breakdown array.
-         */
-        function calculateProgressiveTax(income) {
-            let totalTax = 0;
-            const breakdown = [];
+<script>
+window.onload = function () {
 
-            for (let i = 0; i < NY_BRACKETS.length; i++) {
-                const bracket = NY_BRACKETS[i];
-                
-                const bracketStart = i === 0 ? 0 : NY_BRACKETS[i-1].limit;
-                let bracketEnd = bracket.limit;
-                
-                // If this is the final bracket, set the upper limit to the current income
-                if (bracket.limit === Infinity) {
-                    bracketEnd = income; 
-                }
+    // ── CONSTANTS ─────────────────────────────────────────────────────────────
+    const SS_RATE  = 0.062;
+    const MED_RATE = 0.0145;
+    const SS_LIMIT = 168600;
 
-                // Ensure we don't process brackets that start above the income
-                if (bracketStart >= income) {
-                    break;
-                }
+    // ── 2024 TAX BRACKETS ─────────────────────────────────────────────────────
+    // Federal bracket colors (light → dark = low → high rate)
+    const FED_COLORS = ['#2ecc71','#27ae60','#3498db','#2980b9','#8e44ad','#e67e22','#e74c3c'];
+    // NY State bracket colors
+    const NY_COLORS  = ['#1abc9c','#16a085','#2980b9','#3498db','#8e44ad','#9b59b6','#c0392b','#e74c3c','#922b21'];
+    // NYC city bracket colors
+    const NYC_COLORS = ['#f39c12','#e67e22','#d35400','#c0392b'];
 
-                // Determine the actual amount of income that falls into this bracket slice
-                const taxableInThisSlice = Math.min(income, bracketEnd) - bracketStart;
-                
-                // Calculate tax for this slice
-                const taxForThisSlice = taxableInThisSlice * bracket.rate;
-                totalTax += taxForThisSlice;
-                
-                // Record the result for the table
-                breakdown.push({
-                    range: `${bracketStart.toLocaleString()} - ${bracketEnd === Infinity ? '∞' : bracketEnd.toLocaleString()}`,
-                    rate: (bracket.rate * 100).toFixed(2) + '%',
-                    incomeInBracket: taxableInThisSlice.toFixed(2),
-                    taxPaid: taxForThisSlice.toFixed(2),
-                    color: bracket.color
-                });
-            }
+    const TAX_CONFIGS = {
 
-            const effectiveRate = income > 0 ? (totalTax / income) * 100 : 0;
-            return { totalTax: totalTax, effectiveRate: effectiveRate, breakdown: breakdown };
+        // ── SINGLE ────────────────────────────────────────────────────────────
+        single: {
+            federal: [
+                { min:       0, max:   11600, rate: 0.10,  color: FED_COLORS[0], label: '10%' },
+                { min:   11600, max:   47150, rate: 0.12,  color: FED_COLORS[1], label: '12%' },
+                { min:   47150, max:  100525, rate: 0.22,  color: FED_COLORS[2], label: '22%' },
+                { min:  100525, max:  191950, rate: 0.24,  color: FED_COLORS[3], label: '24%' },
+                { min:  191950, max:  243725, rate: 0.32,  color: FED_COLORS[4], label: '32%' },
+                { min:  243725, max:  609350, rate: 0.35,  color: FED_COLORS[5], label: '35%' },
+                { min:  609350, max: Infinity,rate: 0.37,  color: FED_COLORS[6], label: '37%' }
+            ],
+            state: [
+                { min:      0, max:    8500, rate: 0.04,   color: NY_COLORS[0], label: '4.00%' },
+                { min:   8500, max:   11700, rate: 0.045,  color: NY_COLORS[1], label: '4.50%' },
+                { min:  11700, max:   13900, rate: 0.0525, color: NY_COLORS[2], label: '5.25%' },
+                { min:  13900, max:   80650, rate: 0.0585, color: NY_COLORS[3], label: '5.85%' },
+                { min:  80650, max:  215400, rate: 0.0625, color: NY_COLORS[4], label: '6.25%' },
+                { min: 215400, max: 1077550, rate: 0.0685, color: NY_COLORS[5], label: '6.85%' },
+                { min:1077550, max: Infinity,rate: 0.0965, color: NY_COLORS[6], label: '9.65%' }
+            ],
+            city: [
+                { min:     0, max:  12000, rate: 0.03078, color: NYC_COLORS[0], label: '3.078%' },
+                { min: 12000, max:  25000, rate: 0.03762, color: NYC_COLORS[1], label: '3.762%' },
+                { min: 25000, max:  50000, rate: 0.03819, color: NYC_COLORS[2], label: '3.819%' },
+                { min: 50000, max: Infinity,rate: 0.03876, color: NYC_COLORS[3], label: '3.876%' }
+            ]
+        },
+
+        // ── MARRIED FILING JOINTLY ────────────────────────────────────────────
+        married_joint: {
+            federal: [
+                { min:       0, max:   23200, rate: 0.10,  color: FED_COLORS[0], label: '10%' },
+                { min:   23200, max:   94300, rate: 0.12,  color: FED_COLORS[1], label: '12%' },
+                { min:   94300, max:  201050, rate: 0.22,  color: FED_COLORS[2], label: '22%' },
+                { min:  201050, max:  383900, rate: 0.24,  color: FED_COLORS[3], label: '24%' },
+                { min:  383900, max:  487450, rate: 0.32,  color: FED_COLORS[4], label: '32%' },
+                { min:  487450, max:  731200, rate: 0.35,  color: FED_COLORS[5], label: '35%' },
+                { min:  731200, max: Infinity,rate: 0.37,  color: FED_COLORS[6], label: '37%' }
+            ],
+            state: [
+                { min:      0, max:   17150, rate: 0.04,   color: NY_COLORS[0], label: '4.00%' },
+                { min:  17150, max:   23600, rate: 0.045,  color: NY_COLORS[1], label: '4.50%' },
+                { min:  23600, max:   27900, rate: 0.0525, color: NY_COLORS[2], label: '5.25%' },
+                { min:  27900, max:  161550, rate: 0.0585, color: NY_COLORS[3], label: '5.85%' },
+                { min: 161550, max:  323200, rate: 0.0625, color: NY_COLORS[4], label: '6.25%' },
+                { min: 323200, max: 2155350, rate: 0.0685, color: NY_COLORS[5], label: '6.85%' },
+                { min:2155350, max: Infinity,rate: 0.0965, color: NY_COLORS[6], label: '9.65%' }
+            ],
+            city: [
+                { min:      0, max:  21600, rate: 0.03078, color: NYC_COLORS[0], label: '3.078%' },
+                { min:  21600, max:  45000, rate: 0.03762, color: NYC_COLORS[1], label: '3.762%' },
+                { min:  45000, max:  90000, rate: 0.03819, color: NYC_COLORS[2], label: '3.819%' },
+                { min:  90000, max: Infinity,rate: 0.03876, color: NYC_COLORS[3], label: '3.876%' }
+            ]
+        },
+
+        // ── MARRIED FILING SEPARATELY ─────────────────────────────────────────
+        married_separate: {
+            federal: [
+                { min:       0, max:   11600, rate: 0.10,  color: FED_COLORS[0], label: '10%' },
+                { min:   11600, max:   47150, rate: 0.12,  color: FED_COLORS[1], label: '12%' },
+                { min:   47150, max:  100525, rate: 0.22,  color: FED_COLORS[2], label: '22%' },
+                { min:  100525, max:  191950, rate: 0.24,  color: FED_COLORS[3], label: '24%' },
+                { min:  191950, max:  243725, rate: 0.32,  color: FED_COLORS[4], label: '32%' },
+                { min:  243725, max:  365600, rate: 0.35,  color: FED_COLORS[5], label: '35%' },
+                { min:  365600, max: Infinity,rate: 0.37,  color: FED_COLORS[6], label: '37%' }
+            ],
+            state: [
+                // MFS uses same brackets as Single for NY State
+                { min:      0, max:    8500, rate: 0.04,   color: NY_COLORS[0], label: '4.00%' },
+                { min:   8500, max:   11700, rate: 0.045,  color: NY_COLORS[1], label: '4.50%' },
+                { min:  11700, max:   13900, rate: 0.0525, color: NY_COLORS[2], label: '5.25%' },
+                { min:  13900, max:   80650, rate: 0.0585, color: NY_COLORS[3], label: '5.85%' },
+                { min:  80650, max:  215400, rate: 0.0625, color: NY_COLORS[4], label: '6.25%' },
+                { min: 215400, max: 1077550, rate: 0.0685, color: NY_COLORS[5], label: '6.85%' },
+                { min:1077550, max: Infinity,rate: 0.0965, color: NY_COLORS[6], label: '9.65%' }
+            ],
+            city: [
+                // MFS uses same NYC brackets as Single
+                { min:     0, max:  12000, rate: 0.03078, color: NYC_COLORS[0], label: '3.078%' },
+                { min: 12000, max:  25000, rate: 0.03762, color: NYC_COLORS[1], label: '3.762%' },
+                { min: 25000, max:  50000, rate: 0.03819, color: NYC_COLORS[2], label: '3.819%' },
+                { min: 50000, max: Infinity,rate: 0.03876, color: NYC_COLORS[3], label: '3.876%' }
+            ]
+        },
+
+        // ── HEAD OF HOUSEHOLD ─────────────────────────────────────────────────
+        hoh: {
+            federal: [
+                { min:       0, max:   16550, rate: 0.10,  color: FED_COLORS[0], label: '10%' },
+                { min:   16550, max:   63100, rate: 0.12,  color: FED_COLORS[1], label: '12%' },
+                { min:   63100, max:  100500, rate: 0.22,  color: FED_COLORS[2], label: '22%' },
+                { min:  100500, max:  191950, rate: 0.24,  color: FED_COLORS[3], label: '24%' },
+                { min:  191950, max:  243700, rate: 0.32,  color: FED_COLORS[4], label: '32%' },
+                { min:  243700, max:  609350, rate: 0.35,  color: FED_COLORS[5], label: '35%' },
+                { min:  609350, max: Infinity,rate: 0.37,  color: FED_COLORS[6], label: '37%' }
+            ],
+            state: [
+                { min:      0, max:   12800, rate: 0.04,   color: NY_COLORS[0], label: '4.00%' },
+                { min:  12800, max:   17650, rate: 0.045,  color: NY_COLORS[1], label: '4.50%' },
+                { min:  17650, max:   20900, rate: 0.0525, color: NY_COLORS[2], label: '5.25%' },
+                { min:  20900, max:  107650, rate: 0.0585, color: NY_COLORS[3], label: '5.85%' },
+                { min: 107650, max:  269300, rate: 0.0625, color: NY_COLORS[4], label: '6.25%' },
+                { min: 269300, max: 1616450, rate: 0.0685, color: NY_COLORS[5], label: '6.85%' },
+                { min:1616450, max: Infinity,rate: 0.0965, color: NY_COLORS[6], label: '9.65%' }
+            ],
+            city: [
+                { min:     0, max:  14400, rate: 0.03078, color: NYC_COLORS[0], label: '3.078%' },
+                { min: 14400, max:  30000, rate: 0.03762, color: NYC_COLORS[1], label: '3.762%' },
+                { min: 30000, max:  60000, rate: 0.03819, color: NYC_COLORS[2], label: '3.819%' },
+                { min: 60000, max: Infinity,rate: 0.03876, color: NYC_COLORS[3], label: '3.876%' }
+            ]
         }
+    };
 
-        /**
-         * Renders the visual representation of the tax brackets based on the current income.
-         */
-        function renderBracketVisuals(income) {
-            bracketContainer.innerHTML = '';
-            bracketLabels.innerHTML = '';
-            
-            const VISUAL_SCALE_MAX = 350000; 
-            
-            for (let i = 0; i < NY_BRACKETS.length; i++) {
-                const bracket = NY_BRACKETS[i];
-                const bracketStart = i === 0 ? 0 : NY_BRACKETS[i-1].limit;
-                let bracketEnd = bracket.limit;
-                
-                if (bracket.limit === Infinity) {
-                    bracketEnd = income; 
-                }
+    // ── HELPERS ────────────────────────────────────────────────────────────────
+    const fmt  = n => '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const fmtK = n => '$' + Math.round(n).toLocaleString('en-US');
 
-                const bracketRange = bracketEnd - bracketStart;
-                const visualWidth = (bracketRange / VISUAL_SCALE_MAX) * 100;
-                
-                // Calculate how much of this bracket is filled by the user's income
-                let filledWidth = 0;
-                if (income > bracketStart) {
-                     filledWidth = Math.min(bracketRange, income - bracketStart);
-                }
-                const filledPercentage = (filledWidth / VISUAL_SCALE_MAX) * 100;
+    // ── CORE CALCULATIONS ──────────────────────────────────────────────────────
+    function calcBrackets(income, brackets) {
+        const rows = [];
+        let remaining = income;
+        let totalTax  = 0;
 
-
-                // --- Create Segment Bar ---
-                const segment = document.createElement('div');
-                segment.className = 'bracket-segment';
-                segment.style.backgroundColor = bracket.color;
-                segment.style.width = `${visualWidth}%`;
-                
-                // Use a gradient to show where the income stops within the bracket
-                segment.style.backgroundImage = `linear-gradient(to right, ${bracket.color} 0%, ${bracket.color} ${filledPercentage}%, #ccc ${filledPercentage}%)`;
-                
-                if (visualWidth > 10) {
-                     segment.textContent = `${(bracket.rate * 100).toFixed(1)}%`;
-                }
-                bracketContainer.appendChild(segment);
-
-                // --- Create Label ---
-                const label = document.createElement('div');
-                label.style.flex = '1';
-                label.style.textAlign = 'center';
-                
-                const startDisplay = bracketStart.toLocaleString('en-US');
-                const endDisplay = bracketEnd === Infinity ? '∞' : bracketEnd.toLocaleString('en-US');
-
-                label.innerHTML = `<strong style="color:${bracket.color};">$${startDisplay}</strong> to $${endDisplay}`;
-                bracketLabels.appendChild(label);
-            }
-        }
-
-        function renderTaxTable(breakdown) {
-            const tableBody = document.getElementById('taxTableBody');
-            tableBody.innerHTML = '';
-
-            breakdown.forEach(item => {
-                const row = tableBody.insertRow();
-                
-                // Range
-                row.insertCell().textContent = item.range;
-                
-                // Rate
-                const rateCell = row.insertCell();
-                rateCell.textContent = item.rate;
-                rateCell.style.color = item.color;
-                rateCell.style.fontWeight = 'bold';
-
-                // Income in Bracket
-                row.insertCell().textContent = `$${item.incomeInBracket}`;
-                
-                // Tax Paid
-                row.insertCell().textContent = `$${item.taxPaid}`;
+        for (const b of brackets) {
+            if (remaining <= 0) break;
+            const bracketSize = b.max === Infinity ? remaining : b.max - b.min;
+            const taxable = Math.min(remaining, bracketSize);
+            const tax     = taxable * b.rate;
+            rows.push({
+                rangeLabel: b.max === Infinity
+                    ? `$${b.min.toLocaleString()}+`
+                    : `$${b.min.toLocaleString()} – $${b.max.toLocaleString()}`,
+                rate: b.rate,
+                taxable,
+                tax,
+                color: b.color,
+                label: b.label
             });
+            totalTax  += tax;
+            remaining -= taxable;
         }
+        return { rows, totalTax };
+    }
 
+    function calcFica(income) {
+        const ssIncome = Math.min(income, SS_LIMIT);
+        const ssTax    = ssIncome * SS_RATE;
+        const medTax   = income * MED_RATE;
+        return {
+            rows: [
+                { component: 'Social Security (6.2%)',  rate: SS_RATE,  taxable: ssIncome, tax: ssTax  },
+                { component: 'Medicare (1.45%)',         rate: MED_RATE, taxable: income,   tax: medTax }
+            ],
+            totalTax: ssTax + medTax
+        };
+    }
 
-        function updateVisualization() {
-            const income = parseFloat(incomeSlider.value);
-            
-            // 1. Calculate Results
-            const { totalTax, effectiveRate, breakdown } = calculateProgressiveTax(income);
+    function calculateAll(income, status) {
+        const cfg     = TAX_CONFIGS[status];
+        const federal = calcBrackets(income, cfg.federal);
+        const state   = calcBrackets(income, cfg.state);
+        const fica    = calcFica(income);
+        const city    = calcBrackets(income, cfg.city);
+        const totalTax      = federal.totalTax + state.totalTax + fica.totalTax + city.totalTax;
+        const effectiveRate = (totalTax / income) * 100;
+        return { federal, state, fica, city, totalTax, effectiveRate };
+    }
 
-            // 2. Update Summary Text Displays
-            incomeValueDisplay.textContent = income.toLocaleString('en-US');
-            taxAmountDisplay.textContent = `$${totalTax.toFixed(2).toLocaleString('en-US')}`;
-            effectiveRateDisplay.textContent = `${effectiveRate.toFixed(2)}%`;
+    // ── RENDER HELPERS ─────────────────────────────────────────────────────────
+    function buildBracketRow(r) {
+        return `<tr class="font-mono">
+            <td>${r.rangeLabel !== undefined ? r.rangeLabel : r.component}</td>
+            <td>${(r.rate * 100).toFixed(3)}%</td>
+            <td>${fmt(r.taxable)}</td>
+            <td class="text-right">${fmt(r.tax)}</td>
+        </tr>`;
+    }
 
-            // 3. Update Main Tax Bar
-            const taxPercentage = (totalTax / income) * 100; 
-            taxBar.style.width = `${taxPercentage.toFixed(1)}%`;
-            taxBar.textContent = `${taxPercentage.toFixed(1)}%`;
-            
-            // Dynamic coloring
-            if (taxPercentage > 15) {
-                 taxBar.style.backgroundColor = '#d9534f'; 
-            } else if (taxPercentage > 7) {
-                taxBar.style.backgroundColor = '#f0ad4e'; 
-            } else {
-                taxBar.style.backgroundColor = '#5cb85c'; 
-            }
+    function buildFoot(label, total) {
+        return `<tr>
+            <td colspan="3"><strong>${label}</strong></td>
+            <td class="text-right font-mono"><strong>${fmt(total)}</strong></td>
+        </tr>`;
+    }
 
-            // 4. Update Bracket Visuals (Segmented Bar)
-            renderBracketVisuals(income);
+    // ── MAIN UPDATE ────────────────────────────────────────────────────────────
+    function update() {
+        const income = parseFloat(document.getElementById('incomeSlider').value);
+        const status = document.getElementById('filingStatus').value;
 
-            // 5. Update Detailed Table
-            renderTaxTable(breakdown);
-        }
+        const { federal, state, fica, city, totalTax, effectiveRate } = calculateAll(income, status);
 
-        // Initialize and hook up listener
-        incomeSlider.addEventListener('input', updateVisualization);
-        
-        // Run once on load to set initial values
-        updateVisualization();
-    </script>
+        // --- Summary ---
+        document.getElementById('incomeValue').textContent    = '$' + income.toLocaleString('en-US');
+        document.getElementById('taxAmount').textContent      = fmt(totalTax);
+        document.getElementById('effectiveRate').textContent  = effectiveRate.toFixed(2) + '%';
+        document.getElementById('takeHome').textContent       = fmt(income - totalTax);
 
-</body >
+        // --- Tax Bar ---
+        const bar    = document.getElementById('taxBar');
+        const barPct = Math.min(effectiveRate, 100);
+        bar.style.width           = barPct.toFixed(1) + '%';
+        bar.textContent           = barPct.toFixed(1) + '%';
+        bar.style.backgroundColor = barPct > 35 ? '#d9534f' : barPct > 25 ? '#f0ad4e' : '#5cb85c';
+
+        // --- Cards ---
+        document.getElementById('cardFederal').textContent     = fmtK(federal.totalTax);
+        document.getElementById('cardFederalRate').textContent = ((federal.totalTax / income) * 100).toFixed(1) + '% eff.';
+        document.getElementById('cardState').textContent       = fmtK(state.totalTax);
+        document.getElementById('cardStateRate').textContent   = ((state.totalTax / income) * 100).toFixed(1) + '% eff.';
+        document.getElementById('cardFica').textContent        = fmtK(fica.totalTax);
+        document.getElementById('cardFicaRate').textContent    = ((fica.totalTax / income) * 100).toFixed(1) + '% eff.';
+        document.getElementById('cardCity').textContent        = fmtK(city.totalTax);
+        document.getElementById('cardCityRate').textContent    = ((city.totalTax / income) * 100).toFixed(1) + '% eff.';
+
+        // --- Federal Bracket Bar ---
+        const bracketContainer = document.getElementById('bracketContainer');
+        const bracketLegend    = document.getElementById('bracketLegend');
+        bracketContainer.innerHTML = '';
+        bracketLegend.innerHTML    = '';
+
+        federal.rows.forEach(r => {
+            if (r.taxable <= 0) return;
+            const pct = ((r.taxable / income) * 100).toFixed(2);
+            const seg = document.createElement('div');
+            seg.className = 'bracket-segment';
+            seg.style.width           = pct + '%';
+            seg.style.backgroundColor = r.color;
+            seg.title = `${(r.rate * 100).toFixed(0)}% bracket: ${fmt(r.taxable)}`;
+            if (parseFloat(pct) > 4) seg.textContent = (r.rate * 100).toFixed(0) + '%';
+            bracketContainer.appendChild(seg);
+
+            const leg = document.createElement('div');
+            leg.className = 'legend-item';
+            leg.innerHTML = `<div class="legend-swatch" style="background:${r.color}"></div>${r.label}`;
+            bracketLegend.appendChild(leg);
+        });
+
+        // --- Detailed Tables ---
+        document.getElementById('federalTableBody').innerHTML = federal.rows.map(buildBracketRow).join('');
+        document.getElementById('federalTableFoot').innerHTML = buildFoot('Federal Total', federal.totalTax);
+
+        document.getElementById('stateTableBody').innerHTML   = state.rows.map(buildBracketRow).join('');
+        document.getElementById('stateTableFoot').innerHTML   = buildFoot('NY State Total', state.totalTax);
+
+        document.getElementById('ficaTableBody').innerHTML    = fica.rows.map(r => `<tr class="font-mono">
+            <td>${r.component}</td>
+            <td>${(r.rate * 100).toFixed(2)}%</td>
+            <td>${fmt(r.taxable)}</td>
+            <td class="text-right">${fmt(r.tax)}</td>
+        </tr>`).join('');
+        document.getElementById('ficaTableFoot').innerHTML    = buildFoot('FICA Total', fica.totalTax);
+
+        document.getElementById('cityTableBody').innerHTML    = city.rows.map(buildBracketRow).join('');
+        document.getElementById('cityTableFoot').innerHTML    = buildFoot('NYC City Total', city.totalTax);
+    }
+
+    // ── TAB LOGIC ──────────────────────────────────────────────────────────────
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    // ── EVENTS & INIT ──────────────────────────────────────────────────────────
+    document.getElementById('incomeSlider').addEventListener('input', update);
+    document.getElementById('filingStatus').addEventListener('change', update);
+    update();
+};
+</script>
+</body>
 </html>
