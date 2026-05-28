@@ -267,7 +267,7 @@
     <div id="fica" class="tab-content">
         <div class="detailed-breakdown">
             <h3>FICA Tax Calculation (2026)</h3>
-            <p>Social Security (6.2%) applies up to the wage base of $176,100. Medicare (1.45%) applies to all earned income.</p>
+            <p>Social Security (6.2%) applies up to the wage base of $184,500. Medicare (1.45%) applies to all earned income.</p>
             <table>
                 <thead style="background:#2c3e50;">
                     <tr><th>Component</th><th>Rate</th><th>Income Subject</th><th class="text-right">Tax Paid</th></tr>
@@ -299,13 +299,12 @@
 <script>
 window.onload = function () {
 
-    // ── CONSTANTS ─────────────────────────────────────────────────────────────
+    // FICA Tax
     const SS_RATE  = 0.062;
     const MED_RATE = 0.0145;
-    // FIX 5: SS wage base corrected to $176,100 for 2026 (was 184500, and UI said 168600)
-    const SS_LIMIT = 176100;
+    const SS_LIMIT = 184500;
 
-    // 2026 TAX BRACKETS
+    // Color
     const FED_COLORS = ['#2ecc71','#27ae60','#3498db','#2980b9','#8e44ad','#e67e22','#e74c3c'];
     const NY_COLORS  = ['#1abc9c','#16a085','#2980b9','#3498db','#8e44ad','#9b59b6','#c0392b','#e74c3c','#922b21'];
     const NYC_COLORS = ['#f39c12','#e67e22','#d35400','#c0392b'];
@@ -327,8 +326,7 @@ window.onload = function () {
                 { min:      0, max:    8500, rate: 0.04,   color: NY_COLORS[0], label: '4.00%' },
                 { min:   8501, max:   11700, rate: 0.045,  color: NY_COLORS[1], label: '4.50%' },
                 { min:  11701, max:   13900, rate: 0.0525, color: NY_COLORS[2], label: '5.25%' },
-                // FIX 4: rate was 0.055 (5.5%) but label said '5.85%' — corrected rate to 0.0585
-                { min:  13901, max:   80650, rate: 0.0585, color: NY_COLORS[3], label: '5.85%' },
+                { min:  13901, max:   80650, rate: 0.055,  color: NY_COLORS[3], label: '5.5%' },
                 { min:  80650, max:  215400, rate: 0.0625, color: NY_COLORS[4], label: '6.25%' },
                 { min: 215400, max: 1077550, rate: 0.0685, color: NY_COLORS[5], label: '6.85%' },
                 { min:1077550, max: Infinity,rate: 0.0965, color: NY_COLORS[6], label: '9.65%' }
@@ -369,10 +367,8 @@ window.onload = function () {
             ]
         },
 
-        // MARRIED FILING SEPARATELY
+        // MARRIED FILING SEPARATELY (just copy single filing)
         married_separate: {
-            // FIX 2: MFS federal brackets were incorrectly using NY State ranges/labels.
-            // Corrected to proper 2026 MFS federal brackets (≈ half of MFJ thresholds).
             federal: [
                 { min:       0, max:   11600, rate: 0.10,  color: FED_COLORS[0], label: '10%' },
                 { min:   11600, max:   47150, rate: 0.12,  color: FED_COLORS[1], label: '12%' },
@@ -390,7 +386,6 @@ window.onload = function () {
                 { min:   80651, max:  215400, rate: 0.06,   color: NY_COLORS[4], label: '6.00%' },
                 { min:  215401, max: 1077550, rate: 0.0685, color: NY_COLORS[5], label: '6.85%' },
                 { min: 1077551, max: 5000000, rate: 0.0965, color: NY_COLORS[6], label: '9.65%' },
-                // FIX 3: FED_COLORS[7] and [8] don't exist — corrected to NY_COLORS[7] and NY_COLORS[8]
                 { min: 5000001, max:25000000, rate: 0.103,  color: NY_COLORS[7], label: '10.30%' },
                 { min:25000001, max: Infinity,rate: 0.109,  color: NY_COLORS[8], label: '10.90%' }
             ],
@@ -425,18 +420,17 @@ window.onload = function () {
             city: [
                 { min:     0, max:  14400, rate: 0.03078, color: NYC_COLORS[0], label: '3.078%' },
                 { min: 14401, max:  30000, rate: 0.03762, color: NYC_COLORS[1], label: '3.762%' },
-                // FIX 1: Was `{ min: 300001 max: 60000,` — missing comma after 300001, and typo (300001 → 30001)
                 { min: 30001, max:  60000, rate: 0.03819, color: NYC_COLORS[2], label: '3.819%' },
                 { min: 60001, max: Infinity,rate: 0.03876, color: NYC_COLORS[3], label: '3.876%' }
             ]
         }
     };
 
-    // ── HELPERS ────────────────────────────────────────────────────────────────
+    //  HELPERS 
     const fmt  = n => '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     const fmtK = n => '$' + Math.round(n).toLocaleString('en-US');
 
-    // ── CORE CALCULATIONS ──────────────────────────────────────────────────────
+    //  CORE CALCULATIONS 
     function calcBrackets(income, brackets) {
         const rows = [];
         let remaining = income;
@@ -487,7 +481,7 @@ window.onload = function () {
         return { federal, state, fica, city, totalTax, effectiveRate };
     }
 
-    // ── RENDER HELPERS ─────────────────────────────────────────────────────────
+    //  RENDER HELPERS 
     function buildBracketRow(r) {
         return `<tr class="font-mono">
             <td>${r.rangeLabel !== undefined ? r.rangeLabel : r.component}</td>
@@ -504,27 +498,27 @@ window.onload = function () {
         </tr>`;
     }
 
-    // ── MAIN UPDATE ────────────────────────────────────────────────────────────
+    //  MAIN UPDATE 
     function update() {
         const income = parseFloat(document.getElementById('incomeSlider').value);
         const status = document.getElementById('filingStatus').value;
 
         const { federal, state, fica, city, totalTax, effectiveRate } = calculateAll(income, status);
 
-        // --- Summary ---
+        //  Summary 
         document.getElementById('incomeValue').textContent    = '$' + income.toLocaleString('en-US');
         document.getElementById('taxAmount').textContent      = fmt(totalTax);
         document.getElementById('effectiveRate').textContent  = effectiveRate.toFixed(2) + '%';
         document.getElementById('takeHome').textContent       = fmt(income - totalTax);
 
-        // --- Tax Bar ---
+        //  Tax Bar 
         const bar    = document.getElementById('taxBar');
         const barPct = Math.min(effectiveRate, 100);
         bar.style.width           = barPct.toFixed(1) + '%';
         bar.textContent           = barPct.toFixed(1) + '%';
         bar.style.backgroundColor = barPct > 35 ? '#d9534f' : barPct > 25 ? '#f0ad4e' : '#5cb85c';
 
-        // --- Cards ---
+        //  Cards 
         document.getElementById('cardFederal').textContent     = fmtK(federal.totalTax);
         document.getElementById('cardFederalRate').textContent = ((federal.totalTax / income) * 100).toFixed(1) + '% eff.';
         document.getElementById('cardState').textContent       = fmtK(state.totalTax);
@@ -534,7 +528,7 @@ window.onload = function () {
         document.getElementById('cardCity').textContent        = fmtK(city.totalTax);
         document.getElementById('cardCityRate').textContent    = ((city.totalTax / income) * 100).toFixed(1) + '% eff.';
 
-        // --- Federal Bracket Bar ---
+        //  Federal Bracket Bar 
         const bracketContainer = document.getElementById('bracketContainer');
         const bracketLegend    = document.getElementById('bracketLegend');
         bracketContainer.innerHTML = '';
@@ -557,7 +551,7 @@ window.onload = function () {
             bracketLegend.appendChild(leg);
         });
 
-        // --- Detailed Tables ---
+        //  Detailed Tables 
         document.getElementById('federalTableBody').innerHTML = federal.rows.map(buildBracketRow).join('');
         document.getElementById('federalTableFoot').innerHTML = buildFoot('Federal Total', federal.totalTax);
 
@@ -576,7 +570,7 @@ window.onload = function () {
         document.getElementById('cityTableFoot').innerHTML    = buildFoot('NYC City Total', city.totalTax);
     }
 
-    // ── TAB LOGIC ──────────────────────────────────────────────────────────────
+    //  TAB LOGIC
     document.querySelectorAll('.tab-button').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
@@ -586,7 +580,7 @@ window.onload = function () {
         });
     });
 
-    // ── EVENTS & INIT ──────────────────────────────────────────────────────────
+    //  EVENTS & INIT 
     document.getElementById('incomeSlider').addEventListener('input', update);
     document.getElementById('filingStatus').addEventListener('change', update);
     update();
