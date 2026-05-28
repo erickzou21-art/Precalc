@@ -267,7 +267,7 @@
     <div id="fica" class="tab-content">
         <div class="detailed-breakdown">
             <h3>FICA Tax Calculation (2026)</h3>
-            <p>Social Security (6.2%) applies up to the wage base of $168,600. Medicare (1.45%) applies to all earned income.</p>
+            <p>Social Security (6.2%) applies up to the wage base of $176,100. Medicare (1.45%) applies to all earned income.</p>
             <table>
                 <thead style="background:#2c3e50;">
                     <tr><th>Component</th><th>Rate</th><th>Income Subject</th><th class="text-right">Tax Paid</th></tr>
@@ -302,14 +302,12 @@ window.onload = function () {
     // ── CONSTANTS ─────────────────────────────────────────────────────────────
     const SS_RATE  = 0.062;
     const MED_RATE = 0.0145;
-    const SS_LIMIT = 184500;
+    // FIX 5: SS wage base corrected to $176,100 for 2026 (was 184500, and UI said 168600)
+    const SS_LIMIT = 176100;
 
     // 2026 TAX BRACKETS
-    // Federal bracket colors (light → dark = low → high rate)
     const FED_COLORS = ['#2ecc71','#27ae60','#3498db','#2980b9','#8e44ad','#e67e22','#e74c3c'];
-    // NY State bracket colors
     const NY_COLORS  = ['#1abc9c','#16a085','#2980b9','#3498db','#8e44ad','#9b59b6','#c0392b','#e74c3c','#922b21'];
-    // NYC city bracket colors
     const NYC_COLORS = ['#f39c12','#e67e22','#d35400','#c0392b'];
 
     const TAX_CONFIGS = {
@@ -329,8 +327,9 @@ window.onload = function () {
                 { min:      0, max:    8500, rate: 0.04,   color: NY_COLORS[0], label: '4.00%' },
                 { min:   8501, max:   11700, rate: 0.045,  color: NY_COLORS[1], label: '4.50%' },
                 { min:  11701, max:   13900, rate: 0.0525, color: NY_COLORS[2], label: '5.25%' },
-                { min:  13901, max:   80650, rate: 0.055,   color: NY_COLORS[3], label: '5.85%' },
-                { min:  80650, max:  215400, rate: 0.06, color: NY_COLORS[4], label: '6.25%' },
+                // FIX 4: rate was 0.055 (5.5%) but label said '5.85%' — corrected rate to 0.0585
+                { min:  13901, max:   80650, rate: 0.0585, color: NY_COLORS[3], label: '5.85%' },
+                { min:  80650, max:  215400, rate: 0.0625, color: NY_COLORS[4], label: '6.25%' },
                 { min: 215400, max: 1077550, rate: 0.0685, color: NY_COLORS[5], label: '6.85%' },
                 { min:1077550, max: Infinity,rate: 0.0965, color: NY_COLORS[6], label: '9.65%' }
             ],
@@ -370,34 +369,35 @@ window.onload = function () {
             ]
         },
 
-        // MARRIED FILING SEPARATELY 
+        // MARRIED FILING SEPARATELY
         married_separate: {
+            // FIX 2: MFS federal brackets were incorrectly using NY State ranges/labels.
+            // Corrected to proper 2026 MFS federal brackets (≈ half of MFJ thresholds).
             federal: [
-                { min:       0, max:   8500, rate: 0.10,  color: FED_COLORS[0], label: '4%' },
-                { min:   8501, max:   11700, rate: 0.12,  color: FED_COLORS[1], label: '4.5%' },
-                { min:   11701, max:  13900, rate: 0.22,  color: FED_COLORS[2], label: '5.25%' },
-                { min:  13901, max:  80650, rate: 0.24,  color: FED_COLORS[3], label: '5.5%' },
-                { min:  80651, max:  215400, rate: 0.32,  color: FED_COLORS[4], label: '6%' },
-                { min:  215401, max:  1077550, rate: 0.35,  color: FED_COLORS[5], label: '6.85%' },
-                { min:  1077551, max: Infinity,rate: 0.37,  color: FED_COLORS[6], label: '37%' }
+                { min:       0, max:   11600, rate: 0.10,  color: FED_COLORS[0], label: '10%' },
+                { min:   11600, max:   47150, rate: 0.12,  color: FED_COLORS[1], label: '12%' },
+                { min:   47150, max:  100525, rate: 0.22,  color: FED_COLORS[2], label: '22%' },
+                { min:  100525, max:  191950, rate: 0.24,  color: FED_COLORS[3], label: '24%' },
+                { min:  191950, max:  243725, rate: 0.32,  color: FED_COLORS[4], label: '32%' },
+                { min:  243725, max:  365600, rate: 0.35,  color: FED_COLORS[5], label: '35%' },
+                { min:  365600, max: Infinity,rate: 0.37,  color: FED_COLORS[6], label: '37%' }
             ],
             state: [
-                // MFS uses same brackets as Single for NY State
-               { min:       0, max:   8500, rate: 0.04,  color: FED_COLORS[0], label: '4%' },
-                { min:   8501, max:   11700, rate: 0.045,  color: FED_COLORS[1], label: '4.5%' },
-                { min:   11701, max:  13900, rate: 0.0525,  color: FED_COLORS[2], label: '5.25%' },
-                { min:  13901, max:  80650, rate: 0.055,  color: FED_COLORS[3], label: '5.5%' },
-                { min:  80651, max:  215400, rate: 0.06,  color: FED_COLORS[4], label: '6%' },
-                { min:  215401, max:  1077550, rate: 0.0685,  color: FED_COLORS[5], label: '6.85%' },
-                { min:  1077551, max: 5000000, rate: 0.0965,  color: FED_COLORS[6], label: '9.65%' },
-                { min: 5000001, max: 25000000, rate: 0.103, color: FED_COLORS[7], label: '10.30%'},
-                { min: 25000001, max: Infinity,rate: 0.109, color: FED_COLORS[8], label: '10.90%'}
+                { min:       0, max:    8500, rate: 0.04,   color: NY_COLORS[0], label: '4.00%' },
+                { min:    8501, max:   11700, rate: 0.045,  color: NY_COLORS[1], label: '4.50%' },
+                { min:   11701, max:   13900, rate: 0.0525, color: NY_COLORS[2], label: '5.25%' },
+                { min:   13901, max:   80650, rate: 0.055,  color: NY_COLORS[3], label: '5.50%' },
+                { min:   80651, max:  215400, rate: 0.06,   color: NY_COLORS[4], label: '6.00%' },
+                { min:  215401, max: 1077550, rate: 0.0685, color: NY_COLORS[5], label: '6.85%' },
+                { min: 1077551, max: 5000000, rate: 0.0965, color: NY_COLORS[6], label: '9.65%' },
+                // FIX 3: FED_COLORS[7] and [8] don't exist — corrected to NY_COLORS[7] and NY_COLORS[8]
+                { min: 5000001, max:25000000, rate: 0.103,  color: NY_COLORS[7], label: '10.30%' },
+                { min:25000001, max: Infinity,rate: 0.109,  color: NY_COLORS[8], label: '10.90%' }
             ],
             city: [
-                // MFS uses same NYC brackets as Single
                 { min:     0, max:  12000, rate: 0.03078, color: NYC_COLORS[0], label: '3.078%' },
-                { min: 12000, max:  25000, rate: 0.03762, color: NYC_COLORS[1], label: '3.762%' },
-                { min: 25000, max:  50000, rate: 0.03819, color: NYC_COLORS[2], label: '3.819%' },
+                { min: 12001, max:  25000, rate: 0.03762, color: NYC_COLORS[1], label: '3.762%' },
+                { min: 25001, max:  50000, rate: 0.03819, color: NYC_COLORS[2], label: '3.819%' },
                 { min: 50000, max: Infinity,rate: 0.03876, color: NYC_COLORS[3], label: '3.876%' }
             ]
         },
@@ -425,8 +425,9 @@ window.onload = function () {
             city: [
                 { min:     0, max:  14400, rate: 0.03078, color: NYC_COLORS[0], label: '3.078%' },
                 { min: 14401, max:  30000, rate: 0.03762, color: NYC_COLORS[1], label: '3.762%' },
-                { min: 300001 max:  60000, rate: 0.03819, color: NYC_COLORS[2], label: '3.819%' },
-                { min: 60000, max: Infinity,rate: 0.03876, color: NYC_COLORS[3], label: '3.876%' }
+                // FIX 1: Was `{ min: 300001 max: 60000,` — missing comma after 300001, and typo (300001 → 30001)
+                { min: 30001, max:  60000, rate: 0.03819, color: NYC_COLORS[2], label: '3.819%' },
+                { min: 60001, max: Infinity,rate: 0.03876, color: NYC_COLORS[3], label: '3.876%' }
             ]
         }
     };
