@@ -260,13 +260,10 @@
           </div>
         </div>
       </div>
-      <!-- FOOTER -->
       <div class="footer"> By: Erick, Adrien, and Zihan </div>
     </div>
     <script>
-      // ============================================
-      // MATH FUNCTIONS
-      // ============================================
+      // Math functions
       const PRINCIPAL_DEFAULT = 12000;
       const RATE_DEFAULT = 4.4 / 100;
       const MAX_YEARS = Infinity;
@@ -282,9 +279,7 @@
       function calcStandardCompound(x, p, r) {
         return p * Math.pow(1 + r, x);
       }
-      // ============================================
-      // HELPER FUNCTIONS WITH ERROR HANDLING
-      // ============================================
+      // Error handler and default values
       function safeGetNumber(id, defaultValue) {
         const el = document.getElementById(id);
         if (!el) return defaultValue;
@@ -315,9 +310,7 @@
       function getYears() {
         return safeGetNumber('years', MAX_YEARS);
       }
-      // ============================================
-      // CHART 1 - LINEAR VS COMPOUNDED-LINEAR SETUP (FULLY FIXED)
-      // ============================================
+      // Graph 1
       const ctx1 = document.getElementById('chart1');
       let chart1Instance;
 
@@ -334,14 +327,14 @@
             labels: years,
             datasets: [{
               label: 'Linear Growth f(x)',
-              borderColor: '#4f46e5', // Indigo/Purple
+              borderColor: '#4f46e5',
               backgroundColor: 'rgba(79, 70, 229, 0.1)',
               borderWidth: 3,
               pointRadius: 5,
               hoverRadius: 7,
               tension: 0.4,
               data: linearData,
-              fill: true // SHADED BASE
+              fill: true
             }, {
               label: 'Compounded-Linear g(x)',
               borderColor: '#ef4444',
@@ -351,7 +344,7 @@
               hoverRadius: 7,
               tension: 0.4,
               data: compoundedLinearData,
-              fill: true // SHADED TOP (Fills area between g(x) and f(x))
+              fill: true
             }]
           },
           options: {
@@ -387,20 +380,23 @@
                     const x = Math.round(ctx.parsed.x);
                     const p = getPrincipal();
                     const r = getRate();
-                    return ctx.datasetIndex === 0 ? `f(${x}) = $${calcLinear(x, p).toLocaleString()}` : `g(${x}) = $${calcCompoundedLinear(x, p, r).toLocaleString()}`;
+                    return ctx.datasetIndex === 0
+                      ? `f(${x}) = $${calcLinear(x, p).toLocaleString()}`
+                      : `g(${x}) = $${calcCompoundedLinear(x, p, r).toLocaleString()}`;
                   },
                   afterLabel: (ctx) => {
                     const x = Math.round(ctx.parsed.x);
                     const p = getPrincipal();
                     const r = getRate();
+                    const totalDeposited = calcLinear(x, p);
                     if (ctx.datasetIndex === 0) {
                       const totalValue = calcLinear(x, p);
-                      const interestEarned = totalValue - p;
-                      return `Initial Deposit: $${p.toLocaleString()}\nAmount Earned: $${interestEarned.toLocaleString()}\nTotal Value: $${totalValue.toLocaleString()}`;
+                      return `Initial Deposit: $${p.toLocaleString()}\nTotal Deposited: $${totalDeposited.toLocaleString()}\nAmount Earned: $0\nTotal Value: $${totalValue.toLocaleString()}`;
                     } else {
                       const finalValue = calcCompoundedLinear(x, p, r);
-                      const interestEarned = finalValue - p;
-                      return `Initial Deposit: $${p.toLocaleString()}\nAmount Earned: $${interestEarned.toLocaleString()}\nTotal Value: $${finalValue.toLocaleString()}`;
+                      const baseLinear = calcLinear(x, p);
+                      const interestEarned = Math.round(finalValue - baseLinear);
+                      return `Initial Deposit: $${p.toLocaleString()}\nTotal Deposited: $${totalDeposited.toLocaleString()}\nAmount Earned: $${interestEarned.toLocaleString()}\nTotal Value: $${Math.round(finalValue).toLocaleString()}`;
                     }
                   }
                 }
@@ -410,9 +406,7 @@
         });
         return newChart;
       }
-      // ============================================
-      // CHART 2 - STANDARD COMPOUND INTEREST SETUP (FULLY FIXED)
-      // ============================================
+      // Graph 2
       const ctx2 = document.getElementById('chart2');
       let chart2Instance;
 
@@ -474,7 +468,7 @@
                     const r = getRate();
                     const finalValue = calcStandardCompound(x, p, r);
                     const interestEarned = finalValue - p;
-                    return `Initial Deposit: $${p.toLocaleString()}\nAmount Earned: $${interestEarned.toLocaleString()}\nTotal Value: $${finalValue.toLocaleString()}`;
+                    return `Initial Deposit: $${p.toLocaleString()}\nAmount Earned: $${Math.round(interestEarned).toLocaleString()}\nTotal Value: $${Math.round(finalValue).toLocaleString()}`;
                   }
                 }
               }
@@ -483,9 +477,7 @@
         });
         return newChart;
       }
-      // ============================================
-      // MAIN UPDATE FUNCTION (CORE LOGIC)
-      // ============================================
+      // Logic
       function updateGraphs() {
         try {
           const p = getPrincipal();
@@ -494,7 +486,7 @@
           if (p <= 0 || isNaN(p)) throw new Error('Invalid principal value');
           if (r < 0 || isNaN(r)) throw new Error('Invalid rate value');
           if (y < 1 || isNaN(y)) throw new Error('Invalid years value');
-          // 1. Generate data points
+          // Generate data points
           const years = [];
           const linearData = [];
           const compoundedLinearData = [];
@@ -511,35 +503,27 @@
             compoundedLinearData.push(valCompounded);
             standardCompoundData.push(valStandard);
           }
-          // 2. Initialize/Update Chart 1 (Destroys old one, then creates new one)
           chart1Instance = setupChart1(years, linearData, compoundedLinearData);
-          // 3. Initialize/Update Chart 2 (Destroys old one, then creates new one)
           chart2Instance = setupChart2(years, standardCompoundData);
         } catch (error) {
           console.error('Fatal Error in updateGraphs:', error);
         }
       }
-      // ============================================
       // TAB FUNCTIONALITY
-      // ============================================
       document.addEventListener('DOMContentLoaded', () => {
-        // --- TAB LOGIC ---
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
         tabButtons.forEach(button => {
           button.addEventListener('click', () => {
-            // 1. Deactivate all buttons and hide all content
             tabButtons.forEach(btn => btn.classList.remove('active'));
             tabContents.forEach(content => content.classList.remove('active'));
-            // 2. Activate the clicked button and show the corresponding content
             button.classList.add('active');
             document.getElementById(`content-${button.dataset.tab}`).classList.add('active');
-            // *** CRITICAL FIX: FORCE A REFRESH WHEN SWITCHING TABS ***
             updateGraphs();
           });
         });
-        // --- INITIALIZATION ---
         updateGraphs();
       });
     </script>
   </body>
+</html>
