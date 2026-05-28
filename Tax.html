@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Layered Tax Visualization – NYC 2024</title>
+    <title>Multi-Layered Tax Visualization – NYC 2026</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap');
 
@@ -166,7 +166,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>Tax Modeling Tool (2024)</h1>
+    <h1>Tax Modeling Tool (2026)</h1>
     <p class="subtitle">Federal, New York State, FICA &amp; NYC City Taxes</p>
     <div class="controls">
         <label for="incomeSlider">Annual Income: <span id="incomeValue" class="font-mono">$50,000</span></label>
@@ -236,7 +236,7 @@
     <!-- Federal Tab -->
     <div id="federal" class="tab-content">
         <div class="detailed-breakdown">
-            <h3>Federal Tax Calculation (2024)</h3>
+            <h3>Federal Tax Calculation (2026)</h3>
             <p>Your income is taxed progressively across the seven Federal brackets. Rates apply to gross income before deductions in this conceptual model.</p>
             <table>
                 <thead style="background:#3498db;">
@@ -251,7 +251,7 @@
     <!-- State Tab -->
     <div id="state" class="tab-content">
         <div class="detailed-breakdown">
-            <h3>New York State Tax Calculation (2024)</h3>
+            <h3>New York State Tax Calculation (2026)</h3>
             <p>New York State uses a progressive income tax. Brackets differ by filing status.</p>
             <table>
                 <thead style="background:#27ae60;">
@@ -266,7 +266,7 @@
     <!-- FICA Tab -->
     <div id="fica" class="tab-content">
         <div class="detailed-breakdown">
-            <h3>FICA Tax Calculation (2024)</h3>
+            <h3>FICA Tax Calculation (2026)</h3>
             <p>Social Security (6.2%) applies up to the wage base of $168,600. Medicare (1.45%) applies to all earned income.</p>
             <table>
                 <thead style="background:#2c3e50;">
@@ -281,7 +281,7 @@
     <!-- City Tab -->
     <div id="city" class="tab-content">
         <div class="detailed-breakdown">
-            <h3>NYC City Tax Calculation (2024)</h3>
+            <h3>NYC City Tax Calculation (2026)</h3>
             <p>The New York City resident income tax is progressive and varies by filing status. NYC has four brackets ranging from 3.078% to 3.876%.</p>
             <table>
                 <thead style="background:#e67e22;">
@@ -302,9 +302,9 @@ window.onload = function () {
     // ── CONSTANTS ─────────────────────────────────────────────────────────────
     const SS_RATE  = 0.062;
     const MED_RATE = 0.0145;
-    const SS_LIMIT = 1845    00;
+    const SS_LIMIT = 184500;
 
-    // ── 2024 TAX BRACKETS ─────────────────────────────────────────────────────
+    // 2026 TAX BRACKETS
     // Federal bracket colors (light → dark = low → high rate)
     const FED_COLORS = ['#2ecc71','#27ae60','#3498db','#2980b9','#8e44ad','#e67e22','#e74c3c'];
     // NY State bracket colors
@@ -314,7 +314,7 @@ window.onload = function () {
 
     const TAX_CONFIGS = {
 
-        // ── SINGLE ────────────────────────────────────────────────────────────
+        // Single
         single: {
             federal: [
                 { min:       0, max:   11600, rate: 0.10,  color: FED_COLORS[0], label: '10%' },
@@ -323,7 +323,7 @@ window.onload = function () {
                 { min:  100525, max:  191950, rate: 0.24,  color: FED_COLORS[3], label: '24%' },
                 { min:  191950, max:  243725, rate: 0.32,  color: FED_COLORS[4], label: '32%' },
                 { min:  243725, max:  609350, rate: 0.35,  color: FED_COLORS[5], label: '35%' },
-                { min:  609350, max: Infinity,rate: 0.37,  color: FED_COLORS[6], label: '37%' }
+                { min:  609350, max: Infinity, rate: 0.37,  color: FED_COLORS[6], label: '37%' }
             ],
             state: [
                 { min:      0, max:    8500, rate: 0.04,   color: NY_COLORS[0], label: '4.00%' },
@@ -332,17 +332,17 @@ window.onload = function () {
                 { min:  13901, max:   80650, rate: 0.055,   color: NY_COLORS[3], label: '5.85%' },
                 { min:  80650, max:  215400, rate: 0.06, color: NY_COLORS[4], label: '6.25%' },
                 { min: 215400, max: 1077550, rate: 0.0685, color: NY_COLORS[5], label: '6.85%' },
-                { min:1077550, max: Infinity,rate: 0.0965, color: NY_COLORS[6], label: '9.65%' }
+                { min:1077550, max: Infinity, rate: 0.0965, color: NY_COLORS[6], label: '9.65%' }
             ],
             city: [
                 { min:     0, max:  12000, rate: 0.03078, color: NYC_COLORS[0], label: '3.078%' },
                 { min: 12001, max:  25000, rate: 0.03762, color: NYC_COLORS[1], label: '3.762%' },
                 { min: 25001, max:  50000, rate: 0.03819, color: NYC_COLORS[2], label: '3.819%' },
-                { min: 50000, max: Infinity,rate: 0.03876, color: NYC_COLORS[3], label: '3.876%' }
+                { min: 50000, max: Infinity, rate: 0.03876, color: NYC_COLORS[3], label: '3.876%' }
             ]
         },
 
-        // ── MARRIED FILING JOINTLY ────────────────────────────────────────────
+        // MARRIED FILING JOINTLY
         married_joint: {
             federal: [
                 { min:       0, max:   23200, rate: 0.10,  color: FED_COLORS[0], label: '10%' },
@@ -370,7 +370,7 @@ window.onload = function () {
             ]
         },
 
-        // ── MARRIED FILING SEPARATELY ─────────────────────────────────────────
+        // MARRIED FILING SEPARATELY 
         married_separate: {
             federal: [
                 { min:       0, max:   8500, rate: 0.10,  color: FED_COLORS[0], label: '4%' },
@@ -402,7 +402,7 @@ window.onload = function () {
             ]
         },
 
-        // ── HEAD OF HOUSEHOLD ─────────────────────────────────────────────────
+        //  HEAD OF HOUSEHOLD
         hoh: {
             federal: [
                 { min:       0, max:   16550, rate: 0.10,  color: FED_COLORS[0], label: '10%' },
